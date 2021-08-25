@@ -36,6 +36,12 @@ jobs:
         # Runs a script that creates a Redis client, populates
         # the client with data, and retrieves data
         run: node client.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.17.5'
+        run: npm ci
+        #run: npm run build --if-present
+        #run: npm test
         # Environment variable used by the `client.js` script to create
         # a new Redis client.
         env:
@@ -44,10 +50,10 @@ jobs:
           # The default Redis port
           REDIS_PORT: 6379
 
-      - name: Use Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.17.5'
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+#      - name: Use Node.js
+#        uses: actions/setup-node@v2
+#        with:
+#          node-version: '14.17.5'
+#      - run: npm ci
+#      - run: npm run build --if-present
+#      - run: npm test
