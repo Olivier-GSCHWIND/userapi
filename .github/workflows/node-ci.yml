@@ -15,7 +15,7 @@ jobs:
     # Define Node.js versions
     strategy:
       matrix:
-        node-version: [14.17.5]]
+       node-version: [14.17.5]
 
     # Service containers to run with `runner-job`
     services:
