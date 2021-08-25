@@ -1,15 +1,23 @@
 name: Node.js CI
-on: [push]
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  # Label of the container job
-  container-job:
-    # Containers must run in Linux based operating systems
+  # Label of the runner job
+  test:
+    # Must run in Linux based operating systems
     runs-on: ubuntu-latest
-    # Docker Hub image that `container-job` executes in
-    container: node:14.17.5-bullseye
 
-    # Service containers to run with `container-job`
+    # Define Node.js versions
+    strategy:
+      matrix:
+        node-version: [14.17.5]]
+
+    # Service containers to run with `runner-job`
     services:
       # Label used to access the service container
       redis:
@@ -21,39 +29,21 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
 
     steps:
-      # Downloads a copy of the code in your repository before running CI tests
       - name: Check out repository code
         uses: actions/checkout@v2
-
-      # Performs a clean installation of all dependencies in the `package.json` file
-      # For more information, see https://docs.npmjs.com/cli/ci.html
+      
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+          
       - name: Install dependencies
         run: npm ci
 
-      - name: Connect to Redis
-        # Runs a script that creates a Redis client, populates
-        # the client with data, and retrieves data
-        run: node client.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14.17.5'
-       - run: npm ci
-        #run: npm run build --if-present
-        #run: npm test
-        # Environment variable used by the `client.js` script to create
-        # a new Redis client.
-        env:
-          # The hostname used to communicate with the Redis service container
-          REDIS_HOST: redis
-          # The default Redis port
-          REDIS_PORT: 6379
-
-#      - name: Use Node.js
-#        uses: actions/setup-node@v2
-#        with:
-#          node-version: '14.17.5'
-#      - run: npm ci
-#      - run: npm run build --if-present
-#      - run: npm test
+      - name: Run tests
+        run: npm test
